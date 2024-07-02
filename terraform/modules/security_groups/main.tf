@@ -21,15 +21,7 @@ resource "aws_security_group" "secure" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  ingress {
-    description = "Service"
-    from_port   = 30001
-    to_port     = 30001
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
+  
   ingress {
     description = "Database"
     from_port   = 3306
@@ -73,6 +65,96 @@ resource "aws_security_group" "rdssecure" {
 
   tags = {
     Name = "rds"
+  }
+}
+
+# Network ACL para a sub-rede pública
+resource "aws_network_acl" "public" {
+  vpc_id = var.vpc_id
+
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 22
+    to_port    = 22
+  }
+
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 110
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 80
+    to_port    = 80
+  }
+
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 120
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 3306
+    to_port    = 3306
+  }
+
+  egress {
+    protocol   = "tcp"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 22
+    to_port    = 22
+  }
+
+  egress {
+    protocol   = "tcp"
+    rule_no    = 110
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 80
+    to_port    = 80
+  }
+
+  egress {
+    protocol   = "tcp"
+    rule_no    = 120
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 3306
+    to_port    = 3306
+  }
+
+  tags = {
+    Name = "public-network-acl"
+  }
+}
+
+# Network ACL para a sub-rede privada
+resource "aws_network_acl" "private" {
+  vpc_id = var.vpc_id
+
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 110
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 3306
+    to_port    = 3306
+  }
+
+  egress {
+    protocol   = "tcp"
+    rule_no    = 110
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 3306
+    to_port    = 3306
+  }
+
+  tags = {
+    Name = "private-network-acl"
   }
 }
 
