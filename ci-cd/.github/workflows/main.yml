@@ -32,7 +32,7 @@ jobs:
       - name: Deploy to AWS
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          aws eks --region ${AWS_REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME}
+          aws eks --region ${AWS_REGION} update-kubeconfig --name wordpress-cluster
           kubectl apply -f kubernetes/
 
   test:
